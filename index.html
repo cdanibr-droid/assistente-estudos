@@ -130,10 +130,9 @@
   </div>
 
   <div id="tela-usuarios">
-    <p>Quem vai estudar hoje?</p>
-    <button onclick="selecionarUsuario('Claudia')">Claudia</button>
-    <button onclick="selecionarUsuario('Matheus')">Matheus</button>
-    <button onclick="selecionarUsuario('Ana Caroliny')">Ana Caroliny</button>
+    <p>Olá! 😊 Qual é o seu nome?</p>
+    <input type="text" id="nomeUsuarioInput" placeholder="Digite seu nome">
+    <button onclick="entrarComNome()">Entrar</button>
   </div>
 
   <div id="tela-assistente" style="display: none;">
@@ -296,6 +295,16 @@
   let conteudos = [];
   let horaEstudo = 19;       // ✅ declarada aqui
   let horariosEstudo = {};   // ✅ declarada aqui
+
+  // ✅ NOVO: Entrada por nome digitado pelo usuário
+  function entrarComNome() {
+    let nome = document.getElementById("nomeUsuarioInput").value.trim();
+    if (nome === "") {
+      alert("Por favor, digite seu nome.");
+      return;
+    }
+    selecionarUsuario(nome);
+  }
 
   function selecionarUsuario(nome) {
     usuarioAtual = nome;
