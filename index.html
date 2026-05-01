@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Assistente de Estudos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #eef6ff, #f7f2ff);
+      margin: 0;
+      padding: 0;
+    }
+
+    .card {
+      background: #f3f6ff;
+      padding: 15px;
+      border-radius: 16px;
+      margin: 10px 0;
+      text-align: left;
+    }
+
+    .dia {
+      font-weight: bold;
+      color: #2f3a5f;
+      margin-bottom: 5px;
+    }
+
+    .estudo {
+      color: #444;
+    }
+
+    .hora {
+      color: #888;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      color: #2f3a5f;
+    }
+
+    .app {
+      max-width: 430px;
+      margin: 40px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+
+    h1, h2 {
+      color: #2f3a5f;
+    }
+
+    p {
+      color: #444;
+      line-height: 1.5;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      background: #5b7cfa;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #405ee0;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 14px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    pre {
+      background: #f3f6ff;
+      padding: 15px;
+      border-radius: 14px;
+      text-align: left;
+      white-space: pre-wrap;
+      color: #333;
+    }
+
+    .secondary {
+      background: #eaeefc;
+      color: #2f3a5f;
+    }
+
+    ul {
+      text-align: left;
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <h1>🩺 Assistente de Estudos</h1>
+
+  <!-- ✅ NOVO: Tela de boas-vindas de retorno -->
+  <div id="tela-retorno" style="display: none;">
+    <p id="mensagemRetorno"></p>
+    <button onclick="verPlanoSalvo()">📅 Ver meu plano</button>
+    <button class="secondary" onclick="resetarPlano()">🔄 Recomeçar do zero</button>
+  </div>
+
+  <div id="tela-usuarios">
+    <p>Quem vai estudar hoje?</p>
+    <button onclick="selecionarUsuario('Claudia')">Claudia</button>
+    <button onclick="selecionarUsuario('Matheus')">Matheus</button>
+    <button onclick="selecionarUsuario('Ana Caroliny')">Ana Caroliny</button>
+  </div>
+
+  <div id="tela-assistente" style="display: none;">
+    <p id="mensagem"></p>
+    <p>Você quer me dar um nome?</p>
+    <button onclick="darNome()">Sim</button>
+    <button class="secondary" onclick="nomePadrao()">Deixar padrão</button>
+  </div>
+
+  <div id="tela-nome" style="display: none;">
+    <p>Que legal 😊 Como você quer me chamar?</p>
+    <input type="text" id="nomeAssistente" placeholder="Ex: Lumi">
+    <button onclick="salvarNome()">Salvar</button>
+  </div>
+
+  <div id="tela-final" style="display: none;">
+    <p id="mensagemFinal"></p>
+    <button onclick="iniciarOnboarding()">Vamos começar</button>
+  </div>
+
+  <div id="tela-tempo-disponivel" style="display: none;">
+    <p>Quanto tempo você tem disponível por dia? Em horas:</p>
+    <input type="number" id="tempoDisponivel">
+    <button onclick="salvarTempoDisponivel()">Próximo</button>
+  </div>
+
+  <div id="tela-tempo-desejado" style="display: none;">
+    <p>E quanto tempo você quer estudar por dia? Em horas:</p>
+    <input type="number" id="tempoDesejado">
+    <button onclick="salvarTempoDesejado()">Próximo</button>
+  </div>
+
+  <div id="tela-objetivo" style="display: none;">
+    <p>Qual seu objetivo com os estudos?</p>
+    <input type="text" id="objetivo" placeholder="Ex: prova, residência, faculdade">
+    <button onclick="salvarObjetivo()">Próximo</button>
+  </div>
+
+  <div id="tela-horario" style="display: none;">
+    <p>Que horas você prefere estudar? (0 a 23)</p>
+    <input type="number" id="horaEstudo" placeholder="Ex: 19">
+    <button onclick="salvarHorario()">Próximo</button>
+  </div>
+
+  <div id="tela-conteudos" style="display: none;">
+    <h2>📚 O que você quer estudar?</h2>
+    <input type="text" id="conteudoInput" placeholder="Ex: Cardiologia - ECG">
+    <button onclick="adicionarConteudo()">Adicionar</button>
+    <ul id="listaConteudos"></ul>
+    <button onclick="finalizarConteudos()">Continuar</button>
+  </div>
+
+  <div id="tela-rotina" style="display: none;">
+    <p>Você tem horários fixos durante a semana? Trabalho, estágio ou aula?</p>
+    <button onclick="temRotina()">Sim</button>
+    <button class="secondary" onclick="naoTemRotina()">Não</button>
+  </div>
+
+  <div id="tela-horarios" style="display: none;">
+    <h2>⏰ Horários de estudo</h2>
+    <p>Que horas você prefere estudar em cada dia?</p>
+    <input type="number" id="horaSegunda" placeholder="Segunda, ex: 19">
+    <input type="number" id="horaTerca" placeholder="Terça, ex: 20">
+    <input type="number" id="horaQuarta" placeholder="Quarta, ex: 18">
+    <input type="number" id="horaQuinta" placeholder="Quinta, ex: 19">
+    <input type="number" id="horaSexta" placeholder="Sexta, ex: 17">
+    <button onclick="salvarHorarios()">Próximo</button>
+  </div>
+
+  <div id="tela-detalhe-rotina" style="display: none;">
+    <p>Me conta como é sua rotina 😊</p>
+    <p>
+      Exemplo:<br>
+      segunda 8-12<br>
+      terça 14-18
+    </p>
+    <input type="text" id="rotinaTexto" placeholder="Ex: segunda 8-12, terça 14-18">
+    <button onclick="salvarRotina()">Salvar</button>
+  </div>
+
+  <div id="tela-agenda" style="display: none;">
+    <h2 id="tituloAgenda">📅 Seu plano inicial</h2>
+    <div id="listaPlano"></div>
+    <p id="mensagemAssistente" style="margin-top: 15px; color: #2f3a5f;"></p>
+    <p>Você quer mudar algo?</p>
+    <button onclick="salvarPlano()">Salvar plano</button>
+    <button class="secondary" onclick="editarPlano()">Quero mudar</button>
+    <button class="secondary" onclick="resetarPlano()">Recomeçar do zero</button>
+    <button onclick="exportarAgenda()">Exportar para agenda</button>
+  </div>
+
+  <div id="tela-acoes" style="display: none;">
+    <h2>✅ Plano salvo</h2>
+  </div>
+
+  <div id="tela-edicao" style="display: none;">
+    <h2>✏️ Ajustar plano</h2>
+    <p>O que você quer mudar?</p>
+    <input type="text" id="comandoUsuario" placeholder="Ex: tirar sexta, menos terça, mais revisão">
+    <button onclick="aplicarEdicao()">Aplicar</button>
+  </div>
+
+</div>
+
+<script>
+  // ✅ NOVO: Verifica ao abrir se já existe plano salvo
+  window.addEventListener("load", function() {
+    let planoSalvo = localStorage.getItem("planoEstudo");
+    let nomeSalvo  = localStorage.getItem("nomeUsuario");
+    let assistSalvo = localStorage.getItem("nomeAssistente");
+
+    if (planoSalvo && nomeSalvo) {
+      usuarioAtual   = nomeSalvo;
+      assistenteAtual = assistSalvo || "Assistente de Estudos";
+
+      document.getElementById("tela-usuarios").style.display = "none";
+      document.getElementById("tela-retorno").style.display  = "block";
+      document.getElementById("mensagemRetorno").innerHTML =
+        `Bem-vinda de volta, <strong>${usuarioAtual}</strong> 😊<br><br>
+         Seu plano de estudos está salvo.<br>
+         O que você quer fazer?`;
+    }
+  });
+
+  // ✅ NOVO: Carrega o plano salvo e mostra na tela de agenda
+  function verPlanoSalvo() {
+    let planoSalvo = localStorage.getItem("planoEstudo");
+    if (!planoSalvo) {
+      alert("Nenhum plano encontrado.");
+      return;
+    }
+
+    let plano = JSON.parse(planoSalvo);
+    let lista = document.getElementById("listaPlano");
+    lista.innerHTML = "";
+
+    plano.forEach(function(item) {
+      let card = `
+        <div class="card">
+          <div class="dia">${item.dia}</div>
+          <div class="estudo">${item.estudo}</div>
+          <div class="hora">${item.hora}</div>
+        </div>
+      `;
+      lista.innerHTML += card;
+    });
+
+    document.getElementById("tituloAgenda").innerText = "📅 Seu plano de estudos";
+    document.getElementById("tela-retorno").style.display = "none";
+    document.getElementById("tela-agenda").style.display  = "block";
+    document.getElementById("mensagemAssistente").innerText =
+      `Aqui está seu plano, ${usuarioAtual} 😊 Pode editar à vontade!`;
+  }
+  let usuarioAtual = "";
+  let assistenteAtual = "";
+  let tempoDisponivel = 0;
+  let tempoDesejado = 0;
+  let objetivo = "";
+  let rotina = "";
+  let conteudos = [];
+  let horaEstudo = 19;       // ✅ declarada aqui
+  let horariosEstudo = {};   // ✅ declarada aqui
+
+  function selecionarUsuario(nome) {
+    usuarioAtual = nome;
+    document.getElementById("tela-usuarios").style.display = "none";
+    document.getElementById("tela-assistente").style.display = "block";
+    document.getElementById("mensagem").innerText =
+      `Oi, ${usuarioAtual} 😊\n\nEu vou te acompanhar nos seus estudos, sem pressão e no seu ritmo.\n\nAntes de começarmos...`;
+  }
+
+  function darNome() {
+    document.getElementById("tela-assistente").style.display = "none";
+    document.getElementById("tela-nome").style.display = "block";
+  }
+
+  function nomePadrao() {
+    assistenteAtual = "Assistente de Estudos";
+    mostrarFinal();
+  }
+
+  function salvarNome() {
+    assistenteAtual = document.getElementById("nomeAssistente").value;
+    if (assistenteAtual.trim() === "") {
+      alert("Digite um nome para o assistente.");
+      return;
+    }
+    mostrarFinal();
+  }
+
+  function mostrarFinal() {
+    document.getElementById("tela-assistente").style.display = "none";
+    document.getElementById("tela-nome").style.display = "none";
+    document.getElementById("tela-final").style.display = "block";
+    document.getElementById("mensagemFinal").innerHTML =
+      `<strong>Perfeito, ${usuarioAtual} ✨</strong><br><br>
+       Pode me chamar de <strong>${assistenteAtual}</strong> 😊<br><br>
+       Vamos começar?`;
+  }
+
+  function iniciarOnboarding() {
+    document.getElementById("tela-final").style.display = "none";
+    document.getElementById("tela-tempo-disponivel").style.display = "block";
+  }
+
+  function salvarTempoDisponivel() {
+    const valor = document.getElementById("tempoDisponivel").value;
+    if (valor === "") {
+      alert("Digite o tempo disponível.");
+      return;
+    }
+    tempoDisponivel = parseInt(valor);
+    document.getElementById("tela-tempo-disponivel").style.display = "none";
+    document.getElementById("tela-tempo-desejado").style.display = "block";
+  }
+
+  function salvarTempoDesejado() {
+    const valor = document.getElementById("tempoDesejado").value;
+    if (valor === "") {
+      alert("Digite o tempo desejado.");
+      return;
+    }
+    tempoDesejado = parseInt(valor);
+    document.getElementById("tela-tempo-desejado").style.display = "none";
+    document.getElementById("tela-objetivo").style.display = "block";
+  }
+
+  function salvarObjetivo() {
+    objetivo = document.getElementById("objetivo").value;
+    if (objetivo.trim() === "") {
+      alert("Digite seu objetivo.");
+      return;
+    }
+    document.getElementById("tela-objetivo").style.display = "none";
+    document.getElementById("tela-horario").style.display = "block";
+  }
+
+  function salvarHorario() {
+    let valor = document.getElementById("horaEstudo").value;
+    if (valor === "") {
+      alert("Digite um horário.");
+      return;
+    }
+    horaEstudo = parseInt(valor);
+    document.getElementById("tela-horario").style.display = "none";
+    document.getElementById("tela-horarios").style.display = "block";
+  }
+
+  function salvarHorarios() {
+    horariosEstudo = {
+      "segunda": parseInt(document.getElementById("horaSegunda").value) || horaEstudo,
+      "terca":   parseInt(document.getElementById("horaTerca").value)   || horaEstudo,
+      "quarta":  parseInt(document.getElementById("horaQuarta").value)  || horaEstudo,
+      "quinta":  parseInt(document.getElementById("horaQuinta").value)  || horaEstudo,
+      "sexta":   parseInt(document.getElementById("horaSexta").value)   || horaEstudo
+    };
+    document.getElementById("tela-horarios").style.display = "none";
+    document.getElementById("tela-conteudos").style.display = "block";
+  }
+
+  function adicionarConteudo() {
+    let valor = document.getElementById("conteudoInput").value;
+    if (valor.trim() === "") {
+      alert("Digite um conteúdo.");
+      return;
+    }
+    conteudos.push(valor);
+    let item = document.createElement("li");
+    item.innerText = valor;
+    document.getElementById("listaConteudos").appendChild(item);
+    document.getElementById("conteudoInput").value = "";
+  }
+
+  function finalizarConteudos() {
+    if (conteudos.length === 0) {
+      alert("Adicione pelo menos um conteúdo.");
+      return;
+    }
+    document.getElementById("tela-conteudos").style.display = "none";
+    document.getElementById("tela-rotina").style.display = "block";
+  }
+
+  function temRotina() {
+    document.getElementById("tela-rotina").style.display = "none";
+    document.getElementById("tela-detalhe-rotina").style.display = "block";
+  }
+
+  function naoTemRotina() {
+    rotina = "livre";
+    finalizarOnboarding();
+  }
+
+  function salvarRotina() {
+    let valor = document.getElementById("rotinaTexto").value;
+    if (valor.trim() === "") {
+      alert("Digite sua rotina.");
+      return;
+    }
+    rotina = valor;
+    document.getElementById("tela-detalhe-rotina").style.display = "none";
+    finalizarOnboarding();
+  }
+
+  function finalizarOnboarding() {
+    let tempoFinal = Math.min(tempoDisponivel, tempoDesejado);
+    let dias = ["segunda", "terca", "quarta", "quinta", "sexta"];
+    let nomesDias = {
+      "segunda": "Segunda",
+      "terca":   "Terça",
+      "quarta":  "Quarta",
+      "quinta":  "Quinta",
+      "sexta":   "Sexta"
+    };
+
+    let plano = {};
+    let indexConteudo = 0;
+
+    for (let i = 0; i < dias.length; i++) {
+      let dia = dias[i];
+      if (dia === "quarta") {
+        plano[dia] = "Revisão leve";
+      } else {
+        plano[dia] = `${conteudos[indexConteudo % conteudos.length]} - ${tempoFinal}h`;
+        indexConteudo++;
+      }
+    }
+
+    // ✅ CORREÇÃO 2: código de montar cards agora está corretamente dentro do loop
+    let lista = document.getElementById("listaPlano");
+    lista.innerHTML = "";
+
+    for (let dia in plano) {
+      let horario = horariosEstudo[dia] || horaEstudo;
+      let card = `
+        <div class="card">
+          <div class="dia">${nomesDias[dia]}</div>
+          <div class="estudo">${plano[dia]}</div>
+          <div class="hora">⏰ ${horario}h</div>
+        </div>
+      `;
+      lista.innerHTML += card;
+    }
+
+    document.getElementById("tela-detalhe-rotina").style.display = "none";
+    document.getElementById("tela-rotina").style.display = "none";
+    document.getElementById("tela-agenda").style.display = "block";
+    document.getElementById("mensagemAssistente").innerText =
+      "Montei um plano inicial com seus conteúdos 😊";
+  }
+
+  function salvarPlano() {
+    let cards = document.querySelectorAll("#listaPlano .card");
+    let plano = [];
+
+    cards.forEach(function(card) {
+      let dia   = card.querySelector(".dia");
+      let estudo = card.querySelector(".estudo");
+      let hora  = card.querySelector(".hora");
+
+      plano.push({
+        dia:   dia   ? dia.innerText   : "",
+        estudo: estudo ? estudo.innerText : "",
+        hora:  hora  ? hora.innerText  : "⏰ 19h"
+      });
+    });
+
+    localStorage.setItem("planoEstudo", JSON.stringify(plano));
+    localStorage.setItem("nomeUsuario", usuarioAtual);
+    localStorage.setItem("nomeAssistente", assistenteAtual);
+    document.getElementById("mensagemAssistente").innerText = "Plano salvo! 🎉";
+  }
+
+  function voltarParaPlano() {
+    document.getElementById("tela-acoes").style.display = "none";
+    document.getElementById("tela-agenda").style.display = "block";
+    document.getElementById("mensagemAssistente").innerText =
+      "Tudo bem 😊 Você pode ajustar seu plano.";
+  }
+
+  function editarPlano() {
+    document.getElementById("tela-agenda").style.display = "none";
+    document.getElementById("tela-edicao").style.display = "block";
+  }
+
+  function aplicarEdicao() {
+    let comando = document.getElementById("comandoUsuario").value
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+    if (comando.trim() === "") {
+      alert("Digite o que você quer mudar.");
+      return;
+    }
+
+    let mudancas = comando.split(",");
+
+    if (mudancas.length > 3) {
+      alert("Por enquanto, posso aplicar até 3 mudanças por vez 😊");
+      return;
+    }
+
+    mudancas.forEach(function(mudanca) {
+      mudanca = mudanca.trim();
+
+      // ✅ CORREÇÃO 3: agora busca os cards corretos em vez de #tabelaPlano
+      let cards = document.querySelectorAll("#listaPlano .card");
+
+      cards.forEach(function(card) {
+        let diaEl   = card.querySelector(".dia");
+        let estudoEl = card.querySelector(".estudo");
+
+        if (!diaEl || !estudoEl) return;
+
+        let dia = diaEl.innerText
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+
+        // Remover o dia inteiro
+        if (
+          (mudanca.includes("tirar segunda") && dia.includes("segunda")) ||
+          (mudanca.includes("tirar terca")   && dia.includes("terca"))   ||
+          (mudanca.includes("tirar quarta")  && dia.includes("quarta"))  ||
+          (mudanca.includes("tirar quinta")  && dia.includes("quinta"))  ||
+          (mudanca.includes("tirar sexta")   && dia.includes("sexta"))
+        ) {
+          card.remove();
+          return; // para de processar esse card
+        }
+
+        // ✅ CORREÇÃO 4: else if para evitar conflito entre as regras
+        if (
+          (mudanca.includes("menos terca") ||
+           mudanca.includes("diminuir terca") ||
+           mudanca.includes("reduzir terca")) &&
+          dia.includes("terca")
+        ) {
+          estudoEl.innerText = "30min de estudo";
+        } else if (mudanca.includes("mais revisao")) {
+          if (dia.includes("terca") || dia.includes("quinta")) {
+            estudoEl.innerText = "Revisão leve";
+          }
+        }
+      });
+    });
+
+    document.getElementById("tela-edicao").style.display = "none";
+    document.getElementById("tela-agenda").style.display = "block";
+    salvarPlano();
+    document.getElementById("mensagemAssistente").innerText =
+      "Pronto 😊 Apliquei suas mudanças no plano.";
+  }
+
+  function resetarPlano() {
+    localStorage.clear();
+    location.reload();
+  }
+
+  // ✅ CORREÇÃO 5: função duplicada removida — só uma versão aqui
+  function formatarDataICS(data) {
+    let ano    = data.getFullYear();
+    let mes    = String(data.getMonth() + 1).padStart(2, "0");
+    let dia    = String(data.getDate()).padStart(2, "0");
+    let hora   = String(data.getHours()).padStart(2, "0");
+    let minuto = String(data.getMinutes()).padStart(2, "0");
+    return `${ano}${mes}${dia}T${hora}${minuto}00`;
+  }
+
+  function exportarAgenda() {
+    let cards = document.querySelectorAll("#listaPlano .card");
+
+    if (cards.length === 0) {
+      alert("Monte um plano antes de exportar.");
+      return;
+    }
+
+    let conteudoICS = "BEGIN:VCALENDAR\nVERSION:2.0\n";
+    let dataBase = new Date();
+
+    cards.forEach(function(card, index) {
+      let estudo = card.querySelector(".estudo")?.innerText || "Estudo";
+      let hora = horaEstudo; // padrão
+
+      let horaElemento = card.querySelector(".hora");
+      if (horaElemento) {
+        let texto = horaElemento.innerText
+          .replace("⏰", "")
+          .replace("h", "")
+          .trim();
+        if (!isNaN(parseInt(texto))) {
+          hora = parseInt(texto);
+        }
+      }
+
+      let inicio = new Date(dataBase);
+      inicio.setDate(dataBase.getDate() + index);
+      inicio.setHours(hora, 0, 0);
+
+      let fim = new Date(inicio);
+      fim.setHours(hora + 1, 0, 0);
+
+      conteudoICS += `BEGIN:VEVENT
+SUMMARY:${estudo}
+DTSTART:${formatarDataICS(inicio)}
+DTEND:${formatarDataICS(fim)}
+BEGIN:VALARM
+TRIGGER:-PT15M
+DESCRIPTION:Lembrete de estudo
+ACTION:DISPLAY
+END:VALARM
+END:VEVENT\n`;
+    });
+
+    conteudoICS += "END:VCALENDAR";
+
+    let blob = new Blob([conteudoICS], { type: "text/calendar" });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "plano_estudo.ics";
+    link.click();
+  }
+</script>
+
+</body>
+</html>
