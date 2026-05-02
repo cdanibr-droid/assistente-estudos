@@ -1,11 +1,10 @@
- Assistente de Estudos
+ Assistente de Estudos:
 Um assistente pessoal de estudos feito para ajudar estudantes a organizarem sua rotina de forma simples, sem pressão e no próprio ritmo.
 
-Sobre o projeto
 Este projeto nasceu da necessidade de ter um planejamento de estudos prático e personalizado, direto no navegador, sem precisar instalar nada.
 O assistente conversa com o usuário, entende sua rotina e monta um plano de estudos semanal sob medida.
 
-Funcionalidades
+Funcionalidades:
 
 Seleção de usuário personalizada
 Escolha do nome do assistente
@@ -18,11 +17,11 @@ Tela de retorno para quem já tem plano salvo
 Exportação do plano para o Google Agenda (arquivo .ics)
 
 
-Como usar
+Como usar:
 Acesse o link abaixo diretamente pelo navegador, sem precisar instalar nada:
 https://cdanibr-droid.github.io/assistente-estudos
 
-Tecnologias utilizadas
+Tecnologias utilizadas:
 
 HTML5
 CSS3
@@ -35,7 +34,7 @@ assistente-estudos/
 │
 └── index.html       → arquivo principal com toda a aplicação
 
-Como editar o projeto
+Como editar o projeto:
 
 Faça o download do arquivo index.html
 Abra em qualquer editor de texto (ex: VS Code)
