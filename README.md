@@ -29,7 +29,7 @@ JavaScript puro
 localStorage (para salvar o plano no navegador)
 
 
-Estrutura do projeto
+Estrutura do projeto:
 assistente-estudos/
 │
 └── index.html       → arquivo principal com toda a aplicação
